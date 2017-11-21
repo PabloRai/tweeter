@@ -14,3 +14,12 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 		t.Error("Expected tweet is", tweet)
 	}
 }
+
+func TestClearTweet(t *testing.T) {
+	tweet := "Tweet to be erased"
+	service.PublishTweet(tweet)
+	service.ClearTweet()
+	if service.GetTweet() != "" {
+		t.Error("Error tweet is not empty", "")
+	}
+}
