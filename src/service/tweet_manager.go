@@ -6,7 +6,7 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-var tweet domain.Tweet
+var tweets []domain.Tweet
 
 func PublishTweet(twit *domain.Tweet) error {
 	if twit.User == "" {
@@ -16,16 +16,24 @@ func PublishTweet(twit *domain.Tweet) error {
 	} else if len(twit.Text) > 140 {
 		return fmt.Errorf("text exceeds 140 characters")
 	}
-	tweet = *twit
+	tweets = append(tweets, *twit)
 	return nil
 }
 
 func GetTweet() domain.Tweet {
-	return tweet
+
+	return tweets[len(tweets)-1]
 }
 
-func ClearTweet() {
-	tweet.Date = nil
-	tweet.Text = ""
-	tweet.User = ""
+func ClearTweets() {
+	tweets = nil
+	InitializeService()
+}
+
+func InitializeService() {
+	tweets = make([]domain.Tweet, 0)
+}
+
+func GetTweets() []domain.Tweet {
+	return tweets
 }

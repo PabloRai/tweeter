@@ -46,7 +46,7 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 
-			service.ClearTweet()
+			service.ClearTweets()
 			c.Print("Tweet deleted \n")
 			return
 		},
