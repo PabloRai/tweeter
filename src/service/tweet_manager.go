@@ -24,14 +24,17 @@ func PublishTweet(twit *domain.Tweet) (int, error) {
 	return id, nil
 }
 
-func GetTweet() domain.Tweet {
-
-	return tweets[len(tweets)-1]
+func GetTweet() *domain.Tweet {
+	if tweets != nil && len(tweets) > 0 {
+		return &tweets[len(tweets)-1]
+	}
+	return nil
 }
 
 func ClearTweets() {
 	tweets = nil
-	InitializeService()
+	id = 0
+
 }
 
 func InitializeService() {
@@ -44,8 +47,17 @@ func GetTweets() []domain.Tweet {
 
 func GetTweetById(idTweet int) *domain.Tweet {
 	if idTweet <= id {
-		fmt.Println(idTweet)
 		return &tweets[idTweet-1]
 	}
 	return nil
+}
+
+func CountTweetsByUser(user string) int {
+	var counter int
+	for i := 1; i < len(tweets); i++ {
+		if GetTweetById(i).User == user {
+			counter++
+		}
+	}
+	return counter
 }

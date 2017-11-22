@@ -20,7 +20,7 @@ func main() {
 			c.Print("Write your tweet: ")
 			tweet := c.ReadLine()
 			twit := domain.NewTweet(user, tweet)
-			err := service.PublishTweet(twit)
+			_, err := service.PublishTweet(twit)
 			if err != nil {
 				c.Println("There was an error (user can't be empty)")
 			}
@@ -34,9 +34,13 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 			tweet := service.GetTweet()
-			c.Println(tweet.User)
-			c.Println(tweet.Text)
-			c.Println(tweet.Date)
+			if tweet != nil {
+				c.Println(tweet.User)
+				c.Println(tweet.Text)
+				c.Println(tweet.Date)
+			} else {
+				c.Println("There is no tweets")
+			}
 			return
 		},
 	})

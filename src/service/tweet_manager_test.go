@@ -7,9 +7,9 @@ import (
 	"github.com/tweeter/src/service"
 )
 
-//Comela Mosco
-
 func TestPublishedTweetIsSaved(t *testing.T) {
+	service.InitializeService()
+
 	user := "grupoesfera"
 	text := "This is my first tweet"
 	tweet := domain.NewTweet(user, text)
@@ -25,6 +25,8 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 }
 
 func TestTweetWithoutUserIsNotPublished(t *testing.T) {
+	service.InitializeService()
+
 	var tweet *domain.Tweet
 	var user string
 	text := "This is my first tweet"
@@ -38,6 +40,8 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 }
 
 func TestTweetWithoutTextIsNotPublihed(t *testing.T) {
+	service.InitializeService()
+
 	var tweet *domain.Tweet
 	user := "grupoesfera"
 	var text string
@@ -56,6 +60,8 @@ func TestTweetWithoutTextIsNotPublihed(t *testing.T) {
 }
 
 func TestTweetWhichExceding140CharacterIsNotPublished(t *testing.T) {
+	service.InitializeService()
+
 	var tweet *domain.Tweet
 	user := "NICO"
 	text := `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
@@ -84,6 +90,7 @@ func TestTweetWhichExceding140CharacterIsNotPublished(t *testing.T) {
 }
 
 func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
+	service.InitializeService()
 
 	// Initialization
 	service.InitializeService()
@@ -120,6 +127,7 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	if !isValidTweet(t, &secondPublishedTweet, secondPublishedTweet.Id, user, secondText) {
 		return
 	}
+	service.ClearTweets()
 
 }
 
@@ -160,4 +168,36 @@ func TestCanRetrieveTweetById(t *testing.T) {
 	publishedTweet := service.GetTweetById(id)
 
 	isValidTweet(t, publishedTweet, id, user, text)
+	service.ClearTweets()
+
+}
+
+func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
+
+	// Initialization
+	service.InitializeService()
+
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "This is my first tweet"
+	secondText := "This is my second tweet"
+
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+
+	service.PublishTweet(tweet)
+	service.PublishTweet(secondTweet)
+	service.PublishTweet(thirdTweet)
+
+	// Operation
+	count := service.CountTweetsByUser(user)
+
+	// Validation
+	if count != 2 {
+		t.Errorf("Expected count is 2 but was %d", count)
+	}
+
 }
