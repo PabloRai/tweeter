@@ -23,7 +23,6 @@ func main() {
 			err := service.PublishTweet(twit)
 			if err != nil {
 				c.Println("There was an error (user can't be empty)")
-				return
 			}
 			c.Print("Tweet sent \n")
 			return

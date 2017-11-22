@@ -7,11 +7,12 @@ import (
 	"github.com/tweeter/src/service"
 )
 
+//Comela Mosco
+
 func TestPublishedTweetIsSaved(t *testing.T) {
-	var tweet *domain.Tweet
 	user := "grupoesfera"
 	text := "This is my first tweet"
-	tweet = domain.NewTweet(user, text)
+	tweet := domain.NewTweet(user, text)
 	service.PublishTweet(tweet)
 	publishedTweet := service.GetTweet()
 	if publishedTweet.User != user && publishedTweet.Text != text {
@@ -33,5 +34,50 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 
 	if err != nil && err.Error() != "user is required" {
 		t.Error("Expected error is user is required")
+	}
+}
+
+func TestTweetWithoutTextIsNotPublihed(t *testing.T) {
+	var tweet *domain.Tweet
+	user := "grupoesfera"
+	var text string
+	tweet = domain.NewTweet(user, text)
+	var err error
+	err = service.PublishTweet(tweet)
+
+	if err == nil {
+		t.Error("Expected error")
+		return
+	}
+	if err.Error() != "text is required" {
+		t.Error("Expected error is text is required")
+		return
+	}
+}
+
+func TestTweetWhichExceding140CharacterIsNotPublished(t *testing.T) {
+	var tweet *domain.Tweet
+	user := "NICO"
+	text := `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+
+	tweet = domain.NewTweet(user, text)
+
+	var err error
+	err = service.PublishTweet(tweet)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	if err.Error() != "text exceeds 140 characters" {
+		t.Error("Expected error is text exceeds 140 characters")
 	}
 }
