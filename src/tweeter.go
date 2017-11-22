@@ -20,7 +20,11 @@ func main() {
 			c.Print("Write your tweet: ")
 			tweet := c.ReadLine()
 			twit := domain.NewTweet(user, tweet)
-			service.PublishTweet(twit)
+			err := service.PublishTweet(twit)
+			if err != nil {
+				c.Println("There was an error (user can't be empty)")
+				return
+			}
 			c.Print("Tweet sent \n")
 			return
 		},
