@@ -54,8 +54,9 @@ func GetTweetById(idTweet int) *domain.Tweet {
 
 func CountTweetsByUser(user string) int {
 	var counter int
-	for i := 1; i < len(tweets); i++ {
-		if GetTweetById(i).User == user {
+
+	for _, tweet := range tweets {
+		if tweet.User == user {
 			counter++
 		}
 	}
