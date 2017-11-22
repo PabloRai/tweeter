@@ -7,17 +7,21 @@ import (
 )
 
 var tweets []domain.Tweet
+var id int
 
-func PublishTweet(twit *domain.Tweet) error {
+func PublishTweet(twit *domain.Tweet) (int, error) {
 	if twit.User == "" {
-		return fmt.Errorf("user is required")
+		return 0, fmt.Errorf("user is required")
 	} else if twit.Text == "" {
-		return fmt.Errorf("text is required")
+		return 0, fmt.Errorf("text is required")
 	} else if len(twit.Text) > 140 {
-		return fmt.Errorf("text exceeds 140 characters")
+		return 0, fmt.Errorf("text exceeds 140 characters")
 	}
+	id++
+	twit.Id = id
 	tweets = append(tweets, *twit)
-	return nil
+
+	return id, nil
 }
 
 func GetTweet() domain.Tweet {
@@ -36,4 +40,12 @@ func InitializeService() {
 
 func GetTweets() []domain.Tweet {
 	return tweets
+}
+
+func GetTweetById(idTweet int) *domain.Tweet {
+	if idTweet <= id {
+		fmt.Println(idTweet)
+		return &tweets[idTweet-1]
+	}
+	return nil
 }
