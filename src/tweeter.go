@@ -69,5 +69,55 @@ func main() {
 			return
 		},
 	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTweetsByUser",
+		Help: "Shows the amount of tweets of one user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Write your username: ")
+
+			user := c.ReadLine()
+
+			tweet := service.GetTweetsByUser(user)
+			c.Println(tweet)
+			return
+		},
+	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "followUser",
+		Help: "Follow an user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Write your username: ")
+
+			user := c.ReadLine()
+			c.Print("Write the username to follow: ")
+			userToFollow := c.ReadLine()
+			err := service.Follow(user, userToFollow)
+			if err != nil {
+				c.Println(err.Error())
+			} else {
+				c.Println("Done!")
+			}
+			return
+		},
+	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTimeline",
+		Help: "Shows your timeline",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Write your username: ")
+
+			user := c.ReadLine()
+
+			tweets := service.GetTimeline(user)
+			for _, tweet := range tweets {
+				c.Println(tweet.User)
+				c.Println(tweet.Text)
+			}
+			return
+		},
+	})
 	shell.Run()
 }

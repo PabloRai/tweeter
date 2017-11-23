@@ -261,3 +261,22 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) 
 	return true
 
 }
+
+func TestFollowUser(t *testing.T) {
+	service.InitializeService()
+	tweet := domain.NewTweet("grupoesfera", "sarasa")
+	tweet1 := domain.NewTweet("nportas", "mytw")
+	tweet2 := domain.NewTweet("meli", "melitw")
+	service.PublishTweet(tweet)
+	service.PublishTweet(tweet1)
+	service.PublishTweet(tweet2)
+	err := service.Follow("grupoesfera", "nportas")
+	err1 := service.Follow("grupoesfera", "meli")
+	timeline := service.GetTimeline("grupoesfera")
+	if err != nil || err1 != nil {
+		t.Error("Expected no errors")
+	}
+	if len(timeline) != 3 {
+		t.Errorf("The timeline should have three tweets")
+	}
+}

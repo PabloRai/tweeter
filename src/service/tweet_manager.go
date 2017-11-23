@@ -8,6 +8,7 @@ import (
 
 var id int
 var tweets map[string][]*domain.Tweet
+var userFollows map[string][]string
 var twits []*domain.Tweet
 
 func PublishTweet(twit *domain.Tweet) (int, error) {
@@ -44,11 +45,13 @@ func ClearTweets() {
 	tweets = nil
 	id = 0
 	twits = nil
+	userFollows = nil
 
 }
 
 func InitializeService() {
 	tweets = make(map[string][]*domain.Tweet)
+	userFollows = make(map[string][]string)
 	twits = make([]*domain.Tweet, 0)
 	id = 0
 
@@ -82,4 +85,31 @@ func GetTweetsByUser(user string) []*domain.Tweet {
 		return nil
 	}
 	return userList
+}
+
+func Follow(myUser, userToFollow string) error {
+	_, checkUser := tweets[userToFollow]
+
+	if checkUser == false {
+		return fmt.Errorf("There is no username with name %s", userToFollow)
+	}
+	myUserFollowList, ok := userFollows[myUser]
+	if ok == false {
+		myUserFollowList = make([]string, 0)
+	}
+	userFollows[myUser] = append(myUserFollowList, userToFollow)
+	return nil
+}
+
+func GetTimeline(myUser string) []*domain.Tweet {
+	var timeline []*domain.Tweet
+	timeline = make([]*domain.Tweet, 0)
+	users := userFollows[myUser]
+	for index := 0; index < len(users); index++ {
+
+		timeline = append(timeline, GetTweetsByUser(users[index])...)
+	}
+
+	timeline = append(timeline, GetTweetsByUser(myUser)...)
+	return timeline
 }
