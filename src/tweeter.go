@@ -55,5 +55,19 @@ func main() {
 			return
 		},
 	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTweetCountsByUser",
+		Help: "Shows the amount of tweets of one user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Write your username: ")
+
+			user := c.ReadLine()
+
+			tweet := service.CountTweetsByUser(user)
+			c.Println(tweet)
+			return
+		},
+	})
 	shell.Run()
 }
