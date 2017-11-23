@@ -6,10 +6,14 @@ import (
 	"github.com/tweeter/src/domain"
 )
 
-var tweets []domain.Tweet
 var id int
+var tweets map[string][]*domain.Tweet
+var twits []*domain.Tweet
 
 func PublishTweet(twit *domain.Tweet) (int, error) {
+	if tweets == nil {
+		InitializeService()
+	}
 	if twit.User == "" {
 		return 0, fmt.Errorf("user is required")
 	} else if twit.Text == "" {
@@ -19,14 +23,19 @@ func PublishTweet(twit *domain.Tweet) (int, error) {
 	}
 	id++
 	twit.Id = id
-	tweets = append(tweets, *twit)
+	userList, response := tweets[twit.User]
+	twits = append(twits, twit)
+	if response == false {
+		tweets[twit.User] = make([]*domain.Tweet, 0)
+	}
+	tweets[twit.User] = append(userList, twit)
 
 	return id, nil
 }
 
 func GetTweet() *domain.Tweet {
-	if tweets != nil && len(tweets) > 0 {
-		return &tweets[len(tweets)-1]
+	if twits != nil && len(twits) > 0 {
+		return twits[len(twits)-1]
 	}
 	return nil
 }
@@ -34,20 +43,24 @@ func GetTweet() *domain.Tweet {
 func ClearTweets() {
 	tweets = nil
 	id = 0
+	twits = nil
 
 }
 
 func InitializeService() {
-	tweets = make([]domain.Tweet, 0)
+	tweets = make(map[string][]*domain.Tweet)
+	twits = make([]*domain.Tweet, 0)
+	id = 0
+
 }
 
-func GetTweets() []domain.Tweet {
-	return tweets
+func GetTweets() []*domain.Tweet {
+	return twits
 }
 
 func GetTweetById(idTweet int) *domain.Tweet {
 	if idTweet <= id {
-		return &tweets[idTweet-1]
+		return twits[idTweet-1]
 	}
 	return nil
 }
@@ -55,10 +68,18 @@ func GetTweetById(idTweet int) *domain.Tweet {
 func CountTweetsByUser(user string) int {
 	var counter int
 
-	for _, tweet := range tweets {
+	for _, tweet := range twits {
 		if tweet.User == user {
 			counter++
 		}
 	}
 	return counter
+}
+
+func GetTweetsByUser(user string) []*domain.Tweet {
+	userList, ok := tweets[user]
+	if ok == false {
+		return nil
+	}
+	return userList
 }
