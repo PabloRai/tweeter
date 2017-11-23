@@ -7,13 +7,16 @@ import (
 )
 
 var id int
-var tweets map[string][]*domain.Tweet
-var userFollows map[string][]string
-var twits []*domain.Tweet
 
-func PublishTweet(twit *domain.Tweet) (int, error) {
-	if tweets == nil {
-		InitializeService()
+type TweetManager struct {
+	tweets      map[string][]*domain.Tweet
+	userFollows map[string][]string
+	twits       []*domain.Tweet
+}
+
+func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) {
+	if tweetManager.tweets == nil {
+		tweetManager.InitializeService()
 	}
 	if twit.User == "" {
 		return 0, fmt.Errorf("user is required")
@@ -24,54 +27,54 @@ func PublishTweet(twit *domain.Tweet) (int, error) {
 	}
 	id++
 	twit.Id = id
-	userList, response := tweets[twit.User]
-	twits = append(twits, twit)
+	userList, response := tweetManager.tweets[twit.User]
+	tweetManager.twits = append(tweetManager.twits, twit)
 	if response == false {
-		tweets[twit.User] = make([]*domain.Tweet, 0)
+		tweetManager.tweets[twit.User] = make([]*domain.Tweet, 0)
 	}
-	tweets[twit.User] = append(userList, twit)
+	tweetManager.tweets[twit.User] = append(userList, twit)
 
 	return id, nil
 }
 
-func GetTweet() *domain.Tweet {
-	if twits != nil && len(twits) > 0 {
-		return twits[len(twits)-1]
+func (tweetManger *TweetManager) GetTweet() *domain.Tweet {
+	if tweetManger.twits != nil && len(tweetManger.twits) > 0 {
+		return tweetManger.twits[len(tweetManger.twits)-1]
 	}
 	return nil
 }
 
-func ClearTweets() {
-	tweets = nil
+func (tweetManager *TweetManager) ClearTweets() {
+	tweetManager.tweets = nil
 	id = 0
-	twits = nil
-	userFollows = nil
+	tweetManager.twits = nil
+	tweetManager.userFollows = nil
 
 }
 
-func InitializeService() {
-	tweets = make(map[string][]*domain.Tweet)
-	userFollows = make(map[string][]string)
-	twits = make([]*domain.Tweet, 0)
+func (tweetManager *TweetManager) InitializeService() {
+	tweetManager.tweets = make(map[string][]*domain.Tweet)
+	tweetManager.userFollows = make(map[string][]string)
+	tweetManager.twits = make([]*domain.Tweet, 0)
 	id = 0
 
 }
 
-func GetTweets() []*domain.Tweet {
-	return twits
+func (tweetManager *TweetManager) GetTweets() []*domain.Tweet {
+	return tweetManager.twits
 }
 
-func GetTweetById(idTweet int) *domain.Tweet {
+func (tweetManager *TweetManager) GetTweetById(idTweet int) *domain.Tweet {
 	if idTweet <= id {
-		return twits[idTweet-1]
+		return tweetManager.twits[idTweet-1]
 	}
 	return nil
 }
 
-func CountTweetsByUser(user string) int {
+func (tweetManager *TweetManager) CountTweetsByUser(user string) int {
 	var counter int
 
-	for _, tweet := range twits {
+	for _, tweet := range tweetManager.twits {
 		if tweet.User == user {
 			counter++
 		}
@@ -79,37 +82,43 @@ func CountTweetsByUser(user string) int {
 	return counter
 }
 
-func GetTweetsByUser(user string) []*domain.Tweet {
-	userList, ok := tweets[user]
+func (tweetManager *TweetManager) GetTweetsByUser(user string) []*domain.Tweet {
+	userList, ok := tweetManager.tweets[user]
 	if ok == false {
 		return nil
 	}
 	return userList
 }
 
-func Follow(myUser, userToFollow string) error {
-	_, checkUser := tweets[userToFollow]
+func (tweetManager *TweetManager) Follow(myUser, userToFollow string) error {
+	_, checkUser := tweetManager.tweets[userToFollow]
 
 	if checkUser == false {
 		return fmt.Errorf("There is no username with name %s", userToFollow)
 	}
-	myUserFollowList, ok := userFollows[myUser]
+	myUserFollowList, ok := tweetManager.userFollows[myUser]
 	if ok == false {
 		myUserFollowList = make([]string, 0)
 	}
-	userFollows[myUser] = append(myUserFollowList, userToFollow)
+	tweetManager.userFollows[myUser] = append(myUserFollowList, userToFollow)
 	return nil
 }
 
-func GetTimeline(myUser string) []*domain.Tweet {
+func (tweetManager *TweetManager) GetTimeline(myUser string) []*domain.Tweet {
 	var timeline []*domain.Tweet
 	timeline = make([]*domain.Tweet, 0)
-	users := userFollows[myUser]
+	users := tweetManager.userFollows[myUser]
 	for index := 0; index < len(users); index++ {
 
-		timeline = append(timeline, GetTweetsByUser(users[index])...)
+		timeline = append(timeline, tweetManager.GetTweetsByUser(users[index])...)
 	}
 
-	timeline = append(timeline, GetTweetsByUser(myUser)...)
+	timeline = append(timeline, tweetManager.GetTweetsByUser(myUser)...)
+	fmt.Println(timeline)
 	return timeline
+}
+
+func NewTweetManager() *TweetManager {
+	tweetManager := TweetManager{}
+	return &tweetManager
 }
