@@ -260,3 +260,23 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user, text string) 
 	return true
 
 }
+
+func TestTrendingTopics(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "a b c e f"
+	secondText := "a a b c d"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(user, secondText)
+	thirdTweet := domain.NewTweet(anotherUser, text)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.PublishTweet(thirdTweet)
+	topics := tweetManager.GetTopics()
+	if topics[0] != "a" || topics[1] != "b" {
+		t.Error("Wrong topics, should be 'a' and 'b'")
+	}
+
+}

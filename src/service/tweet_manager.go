@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tweeter/src/domain"
 )
@@ -12,6 +13,7 @@ type TweetManager struct {
 	tweets      map[string][]*domain.Tweet
 	userFollows map[string][]string
 	twits       []*domain.Tweet
+	words       map[string]int
 }
 
 func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) {
@@ -33,6 +35,15 @@ func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) 
 		tweetManager.tweets[twit.User] = make([]*domain.Tweet, 0)
 	}
 	tweetManager.tweets[twit.User] = append(userList, twit)
+	palabras := strings.Split(twit.Text, " ")
+	for _, word := range palabras {
+		amount, ok := tweetManager.words[word]
+		if ok == false {
+			tweetManager.words[word] = 0
+		}
+		amount++
+		tweetManager.words[word] = amount
+	}
 
 	return id, nil
 }
@@ -55,6 +66,7 @@ func (tweetManager *TweetManager) ClearTweets() {
 func (tweetManager *TweetManager) InitializeService() {
 	tweetManager.tweets = make(map[string][]*domain.Tweet)
 	tweetManager.userFollows = make(map[string][]string)
+	tweetManager.words = make(map[string]int)
 	tweetManager.twits = make([]*domain.Tweet, 0)
 	id = 0
 
@@ -121,4 +133,22 @@ func (tweetManager *TweetManager) GetTimeline(myUser string) []*domain.Tweet {
 func NewTweetManager() *TweetManager {
 	tweetManager := TweetManager{}
 	return &tweetManager
+}
+
+func (tweetManager *TweetManager) GetTopics() [2]string {
+	var max int
+	var secondMax int
+
+	var maxWords [2]string
+	for word, amount := range tweetManager.words {
+		if amount > max {
+			max = amount
+			maxWords[1] = maxWords[0]
+			maxWords[0] = word
+		} else if amount > secondMax {
+			maxWords[1] = word
+			secondMax = amount
+		}
+	}
+	return maxWords
 }
