@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	tweeterManager := service.NewTweetManager()
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >>")
 	shell.Print("Type 'help' to know commands \n")
@@ -20,7 +21,7 @@ func main() {
 			c.Print("Write your tweet: ")
 			tweet := c.ReadLine()
 			twit := domain.NewTweet(user, tweet)
-			_, err := service.PublishTweet(twit)
+			_, err := tweeterManager.PublishTweet(twit)
 			if err != nil {
 				c.Println("There was an error (user can't be empty)")
 			}
@@ -33,7 +34,7 @@ func main() {
 		Help: "Shows a Tweet",
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
-			tweet := service.GetTweet()
+			tweet := tweeterManager.GetTweet()
 			if tweet != nil {
 				c.Println(tweet.User)
 				c.Println(tweet.Text)
@@ -50,7 +51,7 @@ func main() {
 		Func: func(c *ishell.Context) {
 			defer c.ShowPrompt(true)
 
-			service.ClearTweets()
+			tweeterManager.ClearTweets()
 			c.Print("Tweet deleted \n")
 			return
 		},
@@ -64,7 +65,7 @@ func main() {
 
 			user := c.ReadLine()
 
-			tweet := service.CountTweetsByUser(user)
+			tweet := tweeterManager.CountTweetsByUser(user)
 			c.Println(tweet)
 			return
 		},
@@ -78,7 +79,7 @@ func main() {
 
 			user := c.ReadLine()
 
-			tweet := service.GetTweetsByUser(user)
+			tweet := tweeterManager.GetTweetsByUser(user)
 			c.Println(tweet)
 			return
 		},
@@ -93,7 +94,7 @@ func main() {
 			user := c.ReadLine()
 			c.Print("Write the username to follow: ")
 			userToFollow := c.ReadLine()
-			err := service.Follow(user, userToFollow)
+			err := tweeterManager.Follow(user, userToFollow)
 			if err != nil {
 				c.Println(err.Error())
 			} else {
@@ -111,7 +112,7 @@ func main() {
 
 			user := c.ReadLine()
 
-			tweets := service.GetTimeline(user)
+			tweets := tweeterManager.GetTimeline(user)
 			for _, tweet := range tweets {
 				c.Println(tweet.User)
 				c.Println(tweet.Text)
