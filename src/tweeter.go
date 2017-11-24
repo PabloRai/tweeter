@@ -120,5 +120,37 @@ func main() {
 			return
 		},
 	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "sendMessage",
+		Help: "Send a direct message to an user",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+			c.Print("Write your username: ")
+
+			user := c.ReadLine()
+			c.Print("Write the username to send message: ")
+			userTo := c.ReadLine()
+
+			c.Print("Write the message to send: ")
+			msg := c.ReadLine()
+			tweeterManager.SendDirectMessage(user, userTo, msg)
+			c.Print("Message ", msg, " sent to ", userTo)
+			return
+		},
+	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "getTopics",
+		Help: "Shows the current topics",
+		Func: func(c *ishell.Context) {
+			defer c.ShowPrompt(true)
+
+			tweets := tweeterManager.GetTopics()
+			for _, tweet := range tweets {
+				c.Println(tweet)
+			}
+			return
+		},
+	})
 	shell.Run()
 }

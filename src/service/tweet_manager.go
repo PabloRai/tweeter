@@ -15,6 +15,7 @@ type TweetManager struct {
 	twits            []*domain.Tweet
 	words            map[string]int
 	messagesReceived map[string][]*domain.Message
+	favsUser         map[string][]*domain.Tweet
 }
 
 func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) {
@@ -67,6 +68,7 @@ func (tweetManager *TweetManager) ClearTweets() {
 func (tweetManager *TweetManager) InitializeService() {
 	tweetManager.tweets = make(map[string][]*domain.Tweet)
 	tweetManager.userFollows = make(map[string][]string)
+	tweetManager.favsUser = make(map[string][]*domain.Tweet)
 	tweetManager.messagesReceived = make(map[string][]*domain.Message)
 	tweetManager.words = make(map[string]int)
 	tweetManager.twits = make([]*domain.Tweet, 0)
@@ -156,6 +158,7 @@ func (tweetManager *TweetManager) GetTopics() [2]string {
 }
 
 func (tweetManager *TweetManager) SendDirectMessage(fromUser, toUser, msg string) {
+
 	message := domain.NewMessage(msg)
 	userMessagesReceived, response := tweetManager.messagesReceived[toUser]
 	if response == false {
@@ -200,4 +203,36 @@ func (tweetManager *TweetManager) ReadMessages(user string) []string {
 		msg.Read()
 	}
 	return messagesUnread
+}
+
+func (tweetManager *TweetManager) RetweetById(user string, idTweet int) error {
+	myTweets, response := tweetManager.tweets[user]
+	if response == false {
+		myTweets = make([]*domain.Tweet, 0)
+	}
+	if idTweet > len(tweetManager.twits) {
+		return fmt.Errorf("The id doesn't belong to any tweets")
+	}
+	tweetManager.tweets[user] = append(myTweets, tweetManager.twits[idTweet-1])
+	return nil
+}
+
+func (tweetManager *TweetManager) AddFavorite(user string, idTweet int) error {
+	myFavTweets, response := tweetManager.favsUser[user]
+	if response == false {
+		myFavTweets = make([]*domain.Tweet, 0)
+	}
+	if idTweet > len(tweetManager.twits) {
+		return fmt.Errorf("The id doesn't belong to any tweets")
+	}
+	tweetManager.favsUser[user] = append(myFavTweets, tweetManager.twits[idTweet-1])
+	return nil
+}
+
+func (tweetManager *TweetManager) GetFavsbyUser(user string) []*domain.Tweet {
+	favTweets, response := tweetManager.favsUser[user]
+	if response == false {
+		return nil
+	}
+	return favTweets
 }

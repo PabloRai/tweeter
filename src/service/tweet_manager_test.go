@@ -357,3 +357,41 @@ func TestReadMessage(t *testing.T) {
 	}
 
 }
+
+func TestRetweet(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "a b c e f"
+	secondText := "a a b c d"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(anotherUser, secondText)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	err := tweetManager.RetweetById(user, 2)
+	myTweets := tweetManager.GetTweetsByUser(user)
+	if len(myTweets) != 2 || err != nil {
+		t.Error("The tweets in myTweets should be 2")
+	}
+
+}
+
+func TestFavorites(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "a b c e f"
+	secondText := "a a b c d"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(anotherUser, secondText)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	err := tweetManager.AddFavorite(user, 2)
+	myFavTweets := tweetManager.GetFavsbyUser(user)
+	if len(myFavTweets) != 1 || err != nil {
+		t.Error("The tweets in myFavTweets should be 1")
+	}
+
+}
