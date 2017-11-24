@@ -50,6 +50,25 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 	}
 }
 
+func TestFollowUser(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	tweet := domain.NewTweet("grupoesfera", "sarasa")
+	tweet1 := domain.NewTweet("nportas", "mytw")
+	tweet2 := domain.NewTweet("meli", "melitw")
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(tweet1)
+	tweetManager.PublishTweet(tweet2)
+	err := tweetManager.Follow("grupoesfera", "nportas")
+	err1 := tweetManager.Follow("grupoesfera", "meli")
+	timeline := tweetManager.GetTimeline("grupoesfera")
+	if err != nil || err1 != nil {
+		t.Error("Expected no errors")
+	}
+	if len(timeline) != 3 {
+		t.Errorf("The timeline should have three tweets")
+	}
+}
+
 func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 	// Initialization
@@ -277,6 +296,64 @@ func TestTrendingTopics(t *testing.T) {
 	topics := tweetManager.GetTopics()
 	if topics[0] != "a" || topics[1] != "b" {
 		t.Error("Wrong topics, should be 'a' and 'b'")
+	}
+
+}
+
+func TestUserReceiveADirectMessage(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "a b c e f"
+	secondText := "a a b c d"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(anotherUser, secondText)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.SendDirectMessage(user, anotherUser, "HOLA")
+	anotherUserMessages := tweetManager.GetMessagesReceivedByUser(anotherUser)
+	if anotherUserMessages == nil || len(anotherUserMessages) != 1 {
+		t.Error("anotherUserMessages should have one unread message")
+	}
+
+}
+
+func TestUserGetUnreadMessage(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "a b c e f"
+	secondText := "a a b c d"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(anotherUser, secondText)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.SendDirectMessage(user, anotherUser, "HOLA")
+	anotherUserMessages := tweetManager.GetUnreadMessages(anotherUser)
+	if anotherUserMessages == nil || len(anotherUserMessages) != 1 {
+		t.Error("anotherUserMessages should have one unread message")
+	}
+
+}
+
+func TestReadMessage(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "a b c e f"
+	secondText := "a a b c d"
+
+	tweet := domain.NewTweet(user, text)
+	secondTweet := domain.NewTweet(anotherUser, secondText)
+	tweetManager.PublishTweet(tweet)
+	tweetManager.PublishTweet(secondTweet)
+	tweetManager.SendDirectMessage(user, anotherUser, "HOLA")
+	messages := tweetManager.ReadMessages(anotherUser)
+	anotherUserMessages := tweetManager.GetUnreadMessages(anotherUser)
+	if len(anotherUserMessages) != 0 || messages[0] != "HOLA" {
+		t.Error("anotherUserMessages should have no new messages")
 	}
 
 }

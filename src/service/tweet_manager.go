@@ -10,10 +10,11 @@ import (
 var id int
 
 type TweetManager struct {
-	tweets      map[string][]*domain.Tweet
-	userFollows map[string][]string
-	twits       []*domain.Tweet
-	words       map[string]int
+	tweets           map[string][]*domain.Tweet
+	userFollows      map[string][]string
+	twits            []*domain.Tweet
+	words            map[string]int
+	messagesReceived map[string][]*domain.Message
 }
 
 func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) {
@@ -66,6 +67,7 @@ func (tweetManager *TweetManager) ClearTweets() {
 func (tweetManager *TweetManager) InitializeService() {
 	tweetManager.tweets = make(map[string][]*domain.Tweet)
 	tweetManager.userFollows = make(map[string][]string)
+	tweetManager.messagesReceived = make(map[string][]*domain.Message)
 	tweetManager.words = make(map[string]int)
 	tweetManager.twits = make([]*domain.Tweet, 0)
 	id = 0
@@ -151,4 +153,51 @@ func (tweetManager *TweetManager) GetTopics() [2]string {
 		}
 	}
 	return maxWords
+}
+
+func (tweetManager *TweetManager) SendDirectMessage(fromUser, toUser, msg string) {
+	message := domain.NewMessage(msg)
+	userMessagesReceived, response := tweetManager.messagesReceived[toUser]
+	if response == false {
+		userMessagesReceived = make([]*domain.Message, 0)
+	}
+	tweetManager.messagesReceived[toUser] = append(userMessagesReceived, message)
+}
+
+func (tweetManager *TweetManager) GetMessagesReceivedByUser(user string) []*domain.Message {
+	userMessagesReceived, response := tweetManager.messagesReceived[user]
+	if response == false {
+		return nil
+	}
+	return userMessagesReceived
+}
+
+func (tweetManger *TweetManager) GetUnreadMessages(user string) []*domain.Message {
+	userMessagesReceived := tweetManger.GetMessagesReceivedByUser(user)
+	var result []*domain.Message
+	result = make([]*domain.Message, 0)
+	if userMessagesReceived == nil {
+		return nil
+	}
+	for _, message := range userMessagesReceived {
+		if message.GetRead() == false {
+			result = append(result, message)
+		}
+	}
+	return result
+}
+
+func (tweetManager *TweetManager) ReadMessages(user string) []string {
+	var messagesUnread []string
+	messagesUnread = make([]string, 0)
+	messagesStructUnread := tweetManager.GetUnreadMessages(user)
+	if messagesStructUnread == nil {
+		messagesUnread = append(messagesUnread, "There is no new messages!")
+		return messagesUnread
+	}
+	for _, msg := range messagesStructUnread {
+		messagesUnread = append(messagesUnread, msg.GetText())
+		msg.Read()
+	}
+	return messagesUnread
 }
