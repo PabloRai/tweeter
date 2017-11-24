@@ -36,9 +36,7 @@ func main() {
 			defer c.ShowPrompt(true)
 			tweet := tweeterManager.GetTweet()
 			if tweet != nil {
-				c.Println(tweet.User)
-				c.Println(tweet.Text)
-				c.Println(tweet.Date)
+				c.Println(tweet)
 			} else {
 				c.Println("There is no tweets")
 			}

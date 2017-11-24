@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -21,4 +22,12 @@ func NewTweet(user, text string) *Tweet {
 		id,
 	}
 	return &tweet
+}
+
+func (tweet *Tweet) PrintableTweet() string {
+	return fmt.Sprintf("@%s: %s", tweet.User, tweet.Text)
+}
+
+func (tweet *Tweet) String() string {
+	return tweet.PrintableTweet()
 }
