@@ -5,17 +5,50 @@ import (
 	"time"
 )
 
-type Tweet struct {
+type TextTweet struct {
 	User string
 	Text string
 	Date *time.Time
 	Id   int
 }
 
-func NewTweet(user, text string) *Tweet {
+type ImageTweet struct {
+	User  string
+	Text  string
+	Image string
+	Date  *time.Time
+	Id    int
+}
+
+type QuoteTweet struct {
+	User  string
+	Text  string
+	Quote *TextTweet
+	Date  *time.Time
+	Id    int
+}
+type Tweeter interface {
+	PrintableTweet() string
+}
+
+func (tweet *TextTweet) PrintableTweet() string {
+	return fmt.Sprintf("@%s: %s", tweet.User, tweet.Text)
+
+}
+
+func (tweet *ImageTweet) PrintableTweet() string {
+	return fmt.Sprintf("@%s: %s %s", tweet.User, tweet.Text, tweet.Image)
+
+}
+
+func (tweet *QuoteTweet) PrintableTweet() string {
+	return fmt.Sprintf("@%s: %s \"@%s: \"", tweet.User, tweet.Text, tweet.Quote.User, tweet.Quote.Text)
+
+}
+func NewTextTweet(user, text string) *TextTweet {
 	date := time.Now()
 	var id int
-	tweet := Tweet{
+	tweet := TextTweet{
 		user,
 		text,
 		&date,
@@ -24,10 +57,32 @@ func NewTweet(user, text string) *Tweet {
 	return &tweet
 }
 
-func (tweet *Tweet) PrintableTweet() string {
-	return fmt.Sprintf("@%s: %s", tweet.User, tweet.Text)
+func NewImageTweet(user, text, url_img string) *ImageTweet {
+	date := time.Now()
+	var id int
+	tweet := ImageTweet{
+		user,
+		text,
+		url_img,
+		&date,
+		id,
+	}
+	return &tweet
 }
 
-func (tweet *Tweet) String() string {
+func NewQuoteTweet(user, text string, quote *TextTweet) *QuoteTweet {
+	date := time.Now()
+	var id int
+	tweet := QuoteTweet{
+		user,
+		text,
+		quote,
+		&date,
+		id,
+	}
+	return &tweet
+}
+
+func (tweet *TextTweet) String() string {
 	return tweet.PrintableTweet()
 }

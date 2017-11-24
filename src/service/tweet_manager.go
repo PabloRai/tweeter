@@ -10,15 +10,15 @@ import (
 var id int
 
 type TweetManager struct {
-	tweets           map[string][]*domain.Tweet
+	tweets           map[string][]*domain.TextTweet
 	userFollows      map[string][]string
-	twits            []*domain.Tweet
+	twits            []*domain.TextTweet
 	words            map[string]int
 	messagesReceived map[string][]*domain.Message
-	favsUser         map[string][]*domain.Tweet
+	favsUser         map[string][]*domain.TextTweet
 }
 
-func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) {
+func (tweetManager *TweetManager) PublishTweet(twit *domain.TextTweet) (int, error) {
 	if tweetManager.tweets == nil {
 		tweetManager.InitializeService()
 	}
@@ -34,7 +34,7 @@ func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) 
 	userList, response := tweetManager.tweets[twit.User]
 	tweetManager.twits = append(tweetManager.twits, twit)
 	if response == false {
-		tweetManager.tweets[twit.User] = make([]*domain.Tweet, 0)
+		tweetManager.tweets[twit.User] = make([]*domain.TextTweet, 0)
 	}
 	tweetManager.tweets[twit.User] = append(userList, twit)
 	palabras := strings.Split(twit.Text, " ")
@@ -50,7 +50,7 @@ func (tweetManager *TweetManager) PublishTweet(twit *domain.Tweet) (int, error) 
 	return id, nil
 }
 
-func (tweetManger *TweetManager) GetTweet() *domain.Tweet {
+func (tweetManger *TweetManager) GetTweet() *domain.TextTweet {
 	if tweetManger.twits != nil && len(tweetManger.twits) > 0 {
 		return tweetManger.twits[len(tweetManger.twits)-1]
 	}
@@ -66,21 +66,21 @@ func (tweetManager *TweetManager) ClearTweets() {
 }
 
 func (tweetManager *TweetManager) InitializeService() {
-	tweetManager.tweets = make(map[string][]*domain.Tweet)
+	tweetManager.tweets = make(map[string][]*domain.TextTweet)
 	tweetManager.userFollows = make(map[string][]string)
-	tweetManager.favsUser = make(map[string][]*domain.Tweet)
+	tweetManager.favsUser = make(map[string][]*domain.TextTweet)
 	tweetManager.messagesReceived = make(map[string][]*domain.Message)
 	tweetManager.words = make(map[string]int)
-	tweetManager.twits = make([]*domain.Tweet, 0)
+	tweetManager.twits = make([]*domain.TextTweet, 0)
 	id = 0
 
 }
 
-func (tweetManager *TweetManager) GetTweets() []*domain.Tweet {
+func (tweetManager *TweetManager) GetTweets() []*domain.TextTweet {
 	return tweetManager.twits
 }
 
-func (tweetManager *TweetManager) GetTweetById(idTweet int) *domain.Tweet {
+func (tweetManager *TweetManager) GetTweetById(idTweet int) *domain.TextTweet {
 	if idTweet <= id {
 		return tweetManager.twits[idTweet-1]
 	}
@@ -98,7 +98,7 @@ func (tweetManager *TweetManager) CountTweetsByUser(user string) int {
 	return counter
 }
 
-func (tweetManager *TweetManager) GetTweetsByUser(user string) []*domain.Tweet {
+func (tweetManager *TweetManager) GetTweetsByUser(user string) []*domain.TextTweet {
 	userList, ok := tweetManager.tweets[user]
 	if ok == false {
 		return nil
@@ -120,9 +120,9 @@ func (tweetManager *TweetManager) Follow(myUser, userToFollow string) error {
 	return nil
 }
 
-func (tweetManager *TweetManager) GetTimeline(myUser string) []*domain.Tweet {
-	var timeline []*domain.Tweet
-	timeline = make([]*domain.Tweet, 0)
+func (tweetManager *TweetManager) GetTimeline(myUser string) []*domain.TextTweet {
+	var timeline []*domain.TextTweet
+	timeline = make([]*domain.TextTweet, 0)
 	users := tweetManager.userFollows[myUser]
 	for index := 0; index < len(users); index++ {
 
@@ -208,7 +208,7 @@ func (tweetManager *TweetManager) ReadMessages(user string) []string {
 func (tweetManager *TweetManager) RetweetById(user string, idTweet int) error {
 	myTweets, response := tweetManager.tweets[user]
 	if response == false {
-		myTweets = make([]*domain.Tweet, 0)
+		myTweets = make([]*domain.TextTweet, 0)
 	}
 	if idTweet > len(tweetManager.twits) {
 		return fmt.Errorf("The id doesn't belong to any tweets")
@@ -220,7 +220,7 @@ func (tweetManager *TweetManager) RetweetById(user string, idTweet int) error {
 func (tweetManager *TweetManager) AddFavorite(user string, idTweet int) error {
 	myFavTweets, response := tweetManager.favsUser[user]
 	if response == false {
-		myFavTweets = make([]*domain.Tweet, 0)
+		myFavTweets = make([]*domain.TextTweet, 0)
 	}
 	if idTweet > len(tweetManager.twits) {
 		return fmt.Errorf("The id doesn't belong to any tweets")
@@ -229,7 +229,7 @@ func (tweetManager *TweetManager) AddFavorite(user string, idTweet int) error {
 	return nil
 }
 
-func (tweetManager *TweetManager) GetFavsbyUser(user string) []*domain.Tweet {
+func (tweetManager *TweetManager) GetFavsbyUser(user string) []*domain.TextTweet {
 	favTweets, response := tweetManager.favsUser[user]
 	if response == false {
 		return nil
