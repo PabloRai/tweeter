@@ -395,3 +395,32 @@ func TestFavorites(t *testing.T) {
 	}
 
 }
+
+func TestShareOnGoogle(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	tweetManager.AddPlugin(&domain.GooglePlugin{})
+	plugins := tweetManager.ExecutePlugins("user")
+	if plugins[0] != "Posted on Google" {
+		t.Error("Plugin for google should be active")
+	}
+}
+
+func TestShareOnFacebook(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	tweetManager.AddPlugin(&domain.FacebookPlugin{})
+	plugins := tweetManager.ExecutePlugins("user")
+	if plugins[0] != "Posted on Facebook" {
+		t.Error("Plugin for google should be active")
+	}
+
+}
+
+func TestCountTweetsPlugin(t *testing.T) {
+	tweetManager := service.NewTweetManager()
+	tweetManager.AddPlugin(&domain.CountPlugin{})
+	plugins := tweetManager.ExecutePlugins("user")
+	if plugins[0] != "user" {
+		t.Error("Plugin for google should be active")
+	}
+
+}

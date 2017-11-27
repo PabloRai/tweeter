@@ -16,6 +16,7 @@ type TweetManager struct {
 	words            map[string]int
 	messagesReceived map[string][]*domain.Message
 	favsUser         map[string][]*domain.TextTweet
+	plugins          []domain.TweetPlugin
 }
 
 func (tweetManager *TweetManager) PublishTweet(twit *domain.TextTweet) (int, error) {
@@ -46,7 +47,6 @@ func (tweetManager *TweetManager) PublishTweet(twit *domain.TextTweet) (int, err
 		amount++
 		tweetManager.words[word] = amount
 	}
-
 	return id, nil
 }
 
@@ -72,6 +72,7 @@ func (tweetManager *TweetManager) InitializeService() {
 	tweetManager.messagesReceived = make(map[string][]*domain.Message)
 	tweetManager.words = make(map[string]int)
 	tweetManager.twits = make([]*domain.TextTweet, 0)
+	tweetManager.plugins = make([]domain.TweetPlugin, 0)
 	id = 0
 
 }
@@ -235,4 +236,17 @@ func (tweetManager *TweetManager) GetFavsbyUser(user string) []*domain.TextTweet
 		return nil
 	}
 	return favTweets
+}
+
+func (tweetManager *TweetManager) ExecutePlugins(user string) []string {
+	var result []string
+	result = make([]string, 0)
+	for _, plugin := range tweetManager.plugins {
+		result = append(result, plugin.ExecutePlugin(user))
+	}
+	return result
+}
+
+func (tweetManager *TweetManager) AddPlugin(plugin domain.TweetPlugin) {
+	tweetManager.plugins = append(tweetManager.plugins, plugin)
 }
