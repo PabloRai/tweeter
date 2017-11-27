@@ -247,6 +247,12 @@ func (tweetManager *TweetManager) ExecutePlugins(user string) []string {
 	return result
 }
 
-func (tweetManager *TweetManager) AddPlugin(plugin domain.TweetPlugin) {
+func (tweetManager *TweetManager) AddPlugin(plugin domain.TweetPlugin) error {
+	for _, plug := range tweetManager.plugins {
+		if plug == plugin {
+			return fmt.Errorf("Plugin already exists")
+		}
+	}
 	tweetManager.plugins = append(tweetManager.plugins, plugin)
+	return nil
 }

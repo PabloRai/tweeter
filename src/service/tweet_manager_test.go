@@ -398,18 +398,18 @@ func TestFavorites(t *testing.T) {
 
 func TestShareOnGoogle(t *testing.T) {
 	tweetManager := service.NewTweetManager()
-	tweetManager.AddPlugin(&domain.GooglePlugin{})
+	err := tweetManager.AddPlugin(&domain.GooglePlugin{})
 	plugins := tweetManager.ExecutePlugins("user")
-	if plugins[0] != "Posted on Google" {
+	if plugins[0] != "Posted on Google" || err != nil {
 		t.Error("Plugin for google should be active")
 	}
 }
 
 func TestShareOnFacebook(t *testing.T) {
 	tweetManager := service.NewTweetManager()
-	tweetManager.AddPlugin(&domain.FacebookPlugin{})
+	err := tweetManager.AddPlugin(&domain.FacebookPlugin{})
 	plugins := tweetManager.ExecutePlugins("user")
-	if plugins[0] != "Posted on Facebook" {
+	if plugins[0] != "Posted on Facebook" || err != nil {
 		t.Error("Plugin for google should be active")
 	}
 
@@ -417,10 +417,21 @@ func TestShareOnFacebook(t *testing.T) {
 
 func TestCountTweetsPlugin(t *testing.T) {
 	tweetManager := service.NewTweetManager()
-	tweetManager.AddPlugin(&domain.CountPlugin{})
+	err := tweetManager.AddPlugin(&domain.CountPlugin{})
 	plugins := tweetManager.ExecutePlugins("user")
-	if plugins[0] != "user" {
+	if plugins[0] != "user" || err != nil {
 		t.Error("Plugin for google should be active")
+	}
+
+}
+
+func TestCantAddTwoEqualsPlugins(t *testing.T) {
+
+	tweetManager := service.NewTweetManager()
+	err1 := tweetManager.AddPlugin(&domain.CountPlugin{})
+	err2 := tweetManager.AddPlugin(&domain.CountPlugin{})
+	if err1 != nil || err2 == nil || err2.Error() != "Plugin already exists" {
+		t.Errorf("Error should appear ")
 	}
 
 }
