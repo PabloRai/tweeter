@@ -256,3 +256,10 @@ func (tweetManager *TweetManager) AddPlugin(plugin domain.TweetPlugin) error {
 	tweetManager.plugins = append(tweetManager.plugins, plugin)
 	return nil
 }
+
+func NewMemoryTweetWriter() *domain.MemoryTweetWriter {
+	memoryTweetWriter := domain.MemoryTweetWriter{
+		nil,
+	}
+	return &memoryTweetWriter
+}
