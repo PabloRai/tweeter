@@ -13,6 +13,11 @@ type GinTweet struct {
 	Text string
 }
 
+type GinImageTweet struct {
+	GinTweet
+	Image string
+}
+
 type GinServer struct {
 	tweetManager *service.TweetManager
 }
@@ -28,6 +33,7 @@ func (server *GinServer) StartGinServer() {
 	router.GET("/listTweets", server.listTweets)
 	router.GET("/listTweets/:user", server.listTweets)
 	router.POST("publishTweet", server.publishTweet)
+	router.POST("publishImageTweet", server.publishImageTweet)
 
 	go router.Run()
 }
@@ -51,6 +57,24 @@ func (server *GinServer) publishTweet(c *gin.Context) {
 	c.Bind(&tweetdata)
 
 	tweetToPublish := domain.NewTextTweet(tweetdata.User, tweetdata.Text)
+
+	id, err := server.tweetManager.PublishTweet(tweetToPublish, quit)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Error publishing tweet "+err.Error())
+	} else {
+		c.JSON(http.StatusOK, struct{ Id int }{id})
+	}
+}
+
+func (server *GinServer) publishImageTweet(c *gin.Context) {
+
+	quit := make(chan bool)
+
+	var tweetdata GinImageTweet
+	c.Bind(&tweetdata)
+
+	tweetToPublish := domain.NewImageTweet(tweetdata.GinTweet.User, tweetdata.GinTweet.Text, tweetdata.Image)
 
 	id, err := server.tweetManager.PublishTweet(tweetToPublish, quit)
 
