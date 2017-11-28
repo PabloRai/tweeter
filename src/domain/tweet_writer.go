@@ -5,7 +5,7 @@ import (
 )
 
 type MemoryTweetWriter struct {
-	Tweets []Tweeter
+	Tweets []Tweet
 }
 
 type FileTweetWriter struct {
@@ -16,7 +16,7 @@ type ChannelWriter struct {
 	WriteConcret Writer
 }
 
-func (channelWriter *ChannelWriter) WriteTweet(tweetsToWrite chan Tweeter, quit chan bool) {
+func (channelWriter *ChannelWriter) WriteTweet(tweetsToWrite chan Tweet, quit chan bool) {
 	tweet, open := <-tweetsToWrite
 
 	for open {
@@ -28,15 +28,15 @@ func (channelWriter *ChannelWriter) WriteTweet(tweetsToWrite chan Tweeter, quit 
 }
 
 type Writer interface {
-	WriteTweet(Tweeter)
+	WriteTweet(Tweet)
 }
 
-func (memoryTweetWriter *MemoryTweetWriter) WriteTweet(tweet Tweeter) {
+func (memoryTweetWriter *MemoryTweetWriter) WriteTweet(tweet Tweet) {
 	memoryTweetWriter.Tweets = append(memoryTweetWriter.Tweets, tweet)
 
 }
 
-func (fileTweetWriter *FileTweetWriter) WriteTweet(tweet Tweeter) {
+func (fileTweetWriter *FileTweetWriter) WriteTweet(tweet Tweet) {
 
 	fileTweetWriter.File.Write([]byte(tweet.PrintableTweet() + "\n"))
 

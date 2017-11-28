@@ -27,8 +27,12 @@ type QuoteTweet struct {
 	Date  *time.Time
 	Id    int
 }
-type Tweeter interface {
+type Tweet interface {
 	PrintableTweet() string
+	GetID() int
+	GetUser() string
+	GetText() string
+	SetID(int)
 }
 
 func (tweet *TextTweet) PrintableTweet() string {
@@ -45,6 +49,55 @@ func (tweet *QuoteTweet) PrintableTweet() string {
 	return fmt.Sprintf("@%s: %s \"@%s: \"", tweet.User, tweet.Text, tweet.Quote.User, tweet.Quote.Text)
 
 }
+
+func (tweet *QuoteTweet) GetID() int {
+	return tweet.Id
+}
+
+func (tweet *TextTweet) GetID() int {
+	return tweet.Id
+}
+
+func (tweet *ImageTweet) GetID() int {
+	return tweet.Id
+}
+
+func (tweet *QuoteTweet) SetID(ide int) {
+	tweet.Id = ide
+}
+
+func (tweet *TextTweet) SetID(ide int) {
+	tweet.Id = ide
+}
+
+func (tweet *ImageTweet) SetID(ide int) {
+	tweet.Id = ide
+}
+
+func (tweet *QuoteTweet) GetText() string {
+	return tweet.Text
+}
+
+func (tweet *ImageTweet) GetText() string {
+	return tweet.Text
+}
+
+func (tweet *TextTweet) GetText() string {
+	return tweet.Text
+}
+
+func (tweet *QuoteTweet) GetUser() string {
+	return tweet.User
+}
+
+func (tweet *ImageTweet) GetUser() string {
+	return tweet.User
+}
+
+func (tweet *TextTweet) GetUser() string {
+	return tweet.User
+}
+
 func NewTextTweet(user, text string) *TextTweet {
 	date := time.Now()
 	var id int
