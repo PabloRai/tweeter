@@ -3,11 +3,17 @@ package main
 import (
 	"github.com/abiosoft/ishell"
 	"github.com/tweeter/src/domain"
+	"github.com/tweeter/src/rest"
 	"github.com/tweeter/src/service"
 )
 
 func main() {
-	tweeterManager := service.NewTweetManager()
+	memoryTweetWriter := service.NewMemoryTweetWriter()
+	tweetWriter := service.NewChannelTweetWriter(memoryTweetWriter)
+	tweeterManager := service.NewTweetManager(tweetWriter)
+	gin := rest.NewGinServer(tweeterManager)
+	gin.StartGinServer()
+	quit := make(chan bool)
 	shell := ishell.New()
 	shell.SetPrompt("Tweeter >>")
 	shell.Print("Type 'help' to know commands \n")
@@ -20,8 +26,8 @@ func main() {
 			user := c.ReadLine()
 			c.Print("Write your tweet: ")
 			tweet := c.ReadLine()
-			twit := domain.NewTweet(user, tweet)
-			_, err := tweeterManager.PublishTweet(twit)
+			twit := domain.NewTextTweet(user, tweet)
+			_, err := tweeterManager.PublishTweet(twit, quit)
 			if err != nil {
 				c.Println("There was an error (user can't be empty)")
 			}
@@ -112,8 +118,8 @@ func main() {
 
 			tweets := tweeterManager.GetTimeline(user)
 			for _, tweet := range tweets {
-				c.Println(tweet.User)
-				c.Println(tweet.Text)
+				c.Println((*tweet).GetUser)
+				c.Println((*tweet).GetText)
 			}
 			return
 		},

@@ -40,6 +40,7 @@ func (tweetManager *TweetManager) PublishTweet(twit domain.Tweet, quit chan bool
 		tweetManager.tweets[twit.GetUser()] = make([]*domain.Tweet, 0)
 	}
 	tweetManager.tweets[twit.GetUser()] = append(userList, &twit)
+	tweetManager.channel.WriteConcret.WriteTweet(twit)
 	palabras := strings.Split(twit.GetText(), " ")
 	for _, word := range palabras {
 		amount, ok := tweetManager.words[word]
@@ -49,7 +50,7 @@ func (tweetManager *TweetManager) PublishTweet(twit domain.Tweet, quit chan bool
 		amount++
 		tweetManager.words[word] = amount
 	}
-	quit <- true
+	//quit <- true
 	return id, nil
 }
 
