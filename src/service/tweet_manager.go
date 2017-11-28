@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/tweeter/src/domain"
@@ -269,4 +270,11 @@ func NewChannelTweetWriter(writer domain.Writer) *domain.ChannelWriter {
 		writer,
 	}
 	return &channelWriter
+}
+
+func NewFileTweetWriter() *domain.FileTweetWriter {
+	file, _ := os.OpenFile("myTweets", os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0666)
+	writer := new(domain.FileTweetWriter)
+	writer.File = file
+	return writer
 }
