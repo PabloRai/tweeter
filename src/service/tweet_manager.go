@@ -263,3 +263,10 @@ func NewMemoryTweetWriter() *domain.MemoryTweetWriter {
 	}
 	return &memoryTweetWriter
 }
+
+func NewChannelTweetWriter(writer domain.Writer) *domain.ChannelWriter {
+	channelWriter := domain.ChannelWriter{
+		writer,
+	}
+	return &channelWriter
+}

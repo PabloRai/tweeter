@@ -445,7 +445,7 @@ func TestCanWriteATweet(t *testing.T) {
 	memoryTweetWriter := service.NewMemoryTweetWriter()
 	tweetWriter := service.NewChannelTweetWriter(memoryTweetWriter)
 
-	tweetsToWrite := make(chan domain.Tweet)
+	tweetsToWrite := make(chan domain.Tweeter)
 	quit := make(chan bool)
 
 	go tweetWriter.WriteTweet(tweetsToWrite, quit)
@@ -453,7 +453,7 @@ func TestCanWriteATweet(t *testing.T) {
 	// Operation
 	tweetsToWrite <- tweet
 	tweetsToWrite <- tweet2
-	close(tweetWriter)
+	close(tweetsToWrite)
 
 	<-quit
 
