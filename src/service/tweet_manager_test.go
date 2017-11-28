@@ -309,3 +309,27 @@ func isValidTweet(t *testing.T, tweet domain.Tweet, id int, user, text string) b
 	return true
 
 }
+
+func BenchmarkPublishedTweet(b *testing.B) {
+
+	// Initialization
+	memoryTweetWriter := service.NewMemoryTweetWriter()
+	tweetWriter := service.NewChannelTweetWriter(memoryTweetWriter)
+
+	tweetManager := service.NewTweetManager(tweetWriter)
+
+	var tweet domain.Tweet
+
+	user := "grupoesfera"
+	text := "This is my first tweet"
+
+	tweet = domain.NewTextTweet(user, text)
+
+	quit := make(chan bool)
+
+	// Operation
+	for n := 0; n < b.N; n++ {
+		tweetManager.PublishTweet(tweet, quit)
+	}
+
+}
